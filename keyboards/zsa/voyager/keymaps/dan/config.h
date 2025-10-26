@@ -1,6 +1,6 @@
 #pragma once
 
-#define COMBO_COUNT 48
+#define COMBO_COUNT 49
 
 #define WHEEL_EXTENDED_SUPPORT
 #define POINTING_DEVICE_HIRES_SCROLL_ENABLE

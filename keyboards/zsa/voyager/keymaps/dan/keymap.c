@@ -8,6 +8,12 @@
 #define ZSA_SAFE_RANGE SAFE_RANGE
 #endif
 
+// Combo typing detection - prevent combos during fast typing
+#define QUICK_TAP_TERM 30  // Time window to consider keys as "typing"
+#define IS_TYPING(k) ( \
+    ((uint8_t)(k) <= KC_Z || (uint8_t)(k) == KC_SPC) && \
+    (last_input_activity_elapsed() < QUICK_TAP_TERM)    )
+
 enum {
     _ALPHA,   // default
     _NAV,     // special characters / navigation
@@ -393,6 +399,19 @@ static bool process_record_tmux(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING(TMUX_PREFIX "0");
             return false;
     }
+    return true;
+}
+
+// Require prior idle time before combos can fire during typing
+// This prevents accidental combos while typing quickly
+bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t last_combo_keycode) {
+    // Allow combo if user hasn't been actively typing (idle period)
+    // IS_TYPING macro checks if last input was within QUICK_TAP_TERM (100ms)
+    if (IS_TYPING(last_combo_keycode)) {
+        // Actively typing - don't trigger combo
+        return false;
+    }
+    // Not actively typing - allow combo to trigger
     return true;
 }
 
